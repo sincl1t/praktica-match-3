@@ -1,0 +1,107 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System.Text.RegularExpressions;
+
+public class Game : MonoBehaviour
+{
+    Button[,] buttons;
+    Image[] images;
+
+    Lines lines;
+
+    void Start()
+    {
+        if (lines == null)
+        {
+            lines = new Lines(ShowBox, PlayCut);
+        }
+        InitButtons();
+        InitImages();
+        ShowBox(1, 2, 3);
+        if (lines != null)
+        {
+            lines.Start();
+        }
+    }
+
+    public void ShowBox(int x, int y, int ball)
+    {
+        if (buttons != null && x >= 0 && x < buttons.GetLength(0) && y >= 0 && y < buttons.GetLength(1) && buttons[x, y] != null)
+        {
+            Image image = buttons[x, y].GetComponent<Image>();
+            if (image != null && images != null && ball >= 0 && ball < images.Length && images[ball] != null)
+            {
+                image.sprite = images[ball].sprite; 
+            }
+        }
+    }
+
+    public void PlayCut()
+    {
+
+    }
+
+    public void Click()
+    {
+        GameObject selectedGameObject = EventSystem.current.currentSelectedGameObject;
+        if (selectedGameObject != null)
+        {
+            string name = selectedGameObject.name;
+            int nr = GetNumber(name);
+            int x = nr % Lines.SIZE;
+            int y = nr / Lines.SIZE;
+            Debug.Log($"clicked {name} {x} {y}"); 
+        }
+    }
+
+    private void InitButtons()
+    {
+        buttons = new Button[Lines.SIZE, Lines.SIZE];
+        for (int nr = 0; nr < Lines.SIZE * Lines.SIZE; nr++)
+        {
+            GameObject buttonGameObject = GameObject.Find($"Button ({nr})");
+            if (buttonGameObject != null)
+            {
+                Button button = buttonGameObject.GetComponent<Button>();
+                if (button != null)
+                {
+                    buttons[nr % Lines.SIZE, nr / Lines.SIZE] = button;
+                }
+            }
+        }
+    }    
+
+    private void InitImages()
+    {
+        images = new Image[Lines.BALLS];
+        for (int j = 0; j < Lines.BALLS; j++)
+        {
+            GameObject imageGameObject = GameObject.Find($"Image ({j})");
+            if (imageGameObject != null)
+            {
+                Image image = imageGameObject.GetComponent<Image>();
+                if (image != null)
+                {
+                    images[j] = image;
+                }
+            }
+        }
+    }
+
+    private int GetNumber(string name)
+    {
+        Regex regex = new Regex("\\((\\d+)\\)");
+        Match match = regex.Match(name);
+        if (!match.Success)
+        {
+            throw new Exception("Unrecognized object name");
+        }
+        Group group = match.Groups[1];
+        string number = group.Value;
+        return Convert.ToInt32(number);
+    }
+}

@@ -1,0 +1,31 @@
+using System;
+
+public delegate void ShowBox(int x, int y, int ball);
+public delegate void PlayCut();
+
+public class Lines
+{
+    public const int SIZE = 9;
+    public const int BALLS = 7;
+    
+    ShowBox showBox;
+    PlayCut playCut;
+
+    public Lines(ShowBox showBox, PlayCut playCut)
+    {
+        this.showBox = showBox;
+        this.playCut = playCut;
+    }
+
+    public void Start()
+    {
+        playCut();
+    }
+
+    public void Click(int x, int y)
+    {
+        showBox(x, y, 1);
+    }
+}
+
+
